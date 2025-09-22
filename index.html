@@ -247,9 +247,19 @@
               <span class="author-block">
                 <a href="https://tongnie.github.io/" target="_blank">Tong Nie</a><sup>*</sup>,</span>
                 <span class="author-block">
-                  <a href="SECOND AUTHOR PERSONAL LINK" target="_blank">Second Author</a><sup>*</sup>,</span>
+                  <a href="" target="_blank">Yuewen Mei</a><sup>*</sup>,</span>
                   <span class="author-block">
-                    <a href="THIRD AUTHOR PERSONAL LINK" target="_blank">Third Author</a>
+                    <a href="" target="_blank">Yihong Tang</a>
+                   <span class="author-block">
+                    <a href="" target="_blank">Junlin He</a>
+                   <span class="author-block">
+                    <a href="" target="_blank">Jie Sun</a>
+                   <span class="author-block">
+                    <a href="" target="_blank">Haotian Shi</a>
+                   <span class="author-block">
+                    <a href="" target="_blank">Wei Ma</a>
+                   <span class="author-block">
+                    <a href="" target="_blank">Jian Sun</a>
                   </span>
                   </div>
 
@@ -257,7 +267,7 @@
                     <!-- TODO: Replace with your institution and conference/journal info -->
                     <span class="author-block"><sup>1</sup>The Hong Kong Polytechnic University, <sup>2</sup>Tongji University<br>ArXiv 2025</span>
                     <!-- TODO: Remove this line if no equal contribution -->
-                    <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution</small></span>
+                    <span class="eql-cntrb"><small><br><sup>*</sup>Equal Contribution</small></span>
                   </div>
 
                   <div class="column has-text-centered">
@@ -341,9 +351,10 @@
         <div class="content has-text-justified">
           <!-- TODO: Replace with your paper abstract -->
           <p>
-            Adversarial scenario generation is a cost-effective approach for the safety assessment of autonomous driving systems. However, existing methods are limited by trade-offs among quality, efficiency, and controllability. Here, we reframe it as a multi-objective preference alignment problem. We introduce a novel framework for Steerable Adversarial scenario GEneration (SAGE) that enables testtime control over the trade-off between adversariality and realism without retraining.
-First, we propose constrained group-based preference optimization, an offline fine-tuning method that efficiently learns to balance competing objectives by decoupling hard feasibility constraints from soft preferences. Second, instead of training a single model for a fixed trade-off, we fine-tune two experts on opposing preferences and construct a continuous spectrum of policies at inference time by
-linearly interpolating their model weights. We provide theoretical justification for this scheme through the lens of linear mode connectivity. Extensive experiments demonstrate that SAGE not only generates scenarios with a superior balance of adversariality and realism but also enables more effective closed-loop training.
+            Adversarial scenario generation is a cost-effective approach for the safety assessment of autonomous driving systems. 
+However, existing methods are either overly aggressive, resulting in low realism, or constrained to a fixed trade-off between multiple objectives, lacking the flexibility to adapt to diverse training and testing needs without costly retraining.
+Here, we reframe the task as a multi-objective preference alignment problem and introduce the first framework for Steerable Adversarial scenario GEneration (SAGE).  SAGE enables fine-grained test-time control over the trade-off between adversariality and realism without any retraining. We first propose hierarchical group-based preference optimization, a data-efficient offline alignment method that learns to balance competing objectives by decoupling hard feasibility constraints from soft preferences. Instead of training a fixed model, SAGE fine-tunes two experts on opposing preferences and constructs a continuous spectrum of policies at inference time by linearly interpolating their weights. We provide theoretical justification for this scheme through the lens of linear mode connectivity. 
+            Extensive experiments demonstrate that SAGE not only generates scenarios with a superior balance of adversariality and realism but also enables more effective closed-loop training of driving policies.
           </p>
         </div>
       </div>
