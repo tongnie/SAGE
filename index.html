@@ -203,12 +203,14 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
-      <h2 class="title is-3">Method Overview</h2>
-      <div class="content has-text-centered">
-        <img src="static/images/Fig_intro.png" alt="Overview of the SAGE framework, showing limitations of existing methods, our solution via test-time alignment, and its application in closed-loop training."/>
-        <p class="is-italic pt-2">
-          <b>Left</b>: Existing methods suffer from a fixed trade-off between adversariality and realism. <b>Center</b>: Our method, <b>SAGE</b>, reframes the problem as preference alignment. We train two expert models (adversarial and realistic) and interpolate their weights at test time to steer generation across a continuous spectrum of behaviors. <b>Right</b>: This steerability is highly effective for dual curriculum learning in closed-loop training.
-        </p>
+      <div class="column"> 
+        <h2 class="title is-3 has-text-centered">Method Overview</h2>
+        <div class="content has-text-centered">
+          <img src="static/images/Fig_intro.png" alt="Overview of the SAGE framework, showing limitations of existing methods, our solution via test-time alignment, and its application in closed-loop training."/>
+          <p class="is-italic pt-2">
+            <b>Left</b>: Existing methods suffer from a fixed trade-off between adversariality and realism. <b>Center</b>: Our method, <b>SAGE</b>, reframes the problem as preference alignment. We train two expert models (adversarial and realistic) and interpolate their weights at test time to steer generation across a continuous spectrum of behaviors. <b>Right</b>: This steerability is highly effective for dual curriculum learning in closed-loop training.
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -229,7 +231,7 @@
 <section class="hero is-small">
   <div class="hero-body">
     <div class="container">
-      <h2 class="title is-3">Results Gallery</h2>
+      <h2 class="title is-3 has-text-centered">Results Gallery</h2>
       <div id="results-carousel" class="carousel results-carousel">
         <div class="item">
           <img src="static/images/Fig_case_weight.png" alt="Visualization of steerable generation from compliant to aggressive cut-in." loading="lazy"/>
@@ -628,7 +630,7 @@
 <!-- START: Qualitative Comparison Videos -->
 <section class="section">
   <div class="container">
-    <h2 class="title is-3">Qualitative Comparisons</h2>
+    <h2 class="title is-3 has-text-centered">Qualitative Comparisons</h2>
 
     <!-- First Row of Videos -->
     <div class="columns is-centered is-vcentered">
