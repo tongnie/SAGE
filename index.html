@@ -200,13 +200,26 @@
 <!-- End paper abstract -->
 
 <!-- START: Overview Figure Section -->
+<style>
+  #method-overview-image {
+    /* 
+      在这里设置您想要的宽度。
+      80% 是一个不错的选择，比之前更大，但又不会太满。
+      您可以把它改成 60%, 75%, 90% 等任何您喜欢的值。
+    */
+    width: 75%;
+    height: auto; /* 这行非常重要，它能让图片高度自动调整以保持原始比例不变形 */
+  }
+</style>
+
+<!-- START: Overview Figure Section -->
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column"> 
         <h2 class="title is-3 has-text-centered">Method Overview</h2>
         <div class="content has-text-centered">
-          <img src="static/images/Fig_intro.png" alt="Overview of the SAGE framework, showing limitations of existing methods, our solution via test-time alignment, and its application in closed-loop training."/>
+          <img id="method-overview-image" src="static/images/Fig_intro.png" alt="Overview of the SAGE framework, showing limitations of existing methods, our solution via test-time alignment, and its application in closed-loop training."/>
           <p class="is-italic pt-2">
             <b>Left</b>: Existing methods suffer from a fixed trade-off between adversariality and realism. <b>Center</b>: Our method, <b>SAGE</b>, reframes the problem as preference alignment. We train two expert models (adversarial and realistic) and interpolate their weights at test time to steer generation across a continuous spectrum of behaviors. <b>Right</b>: This steerability is highly effective for dual curriculum learning in closed-loop training.
           </p>
@@ -216,6 +229,7 @@
   </div>
 </section>
 <!-- END: Overview Figure Section -->
+
   
 <style>
   .results-carousel .item {
