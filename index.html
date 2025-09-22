@@ -217,7 +217,14 @@
   </div>
 </section>
 <!-- END: Overview Figure Section -->
-
+  
+<style>
+  .results-carousel .item img {
+    height: 400px; /* 设置一个固定的高度 */
+    width: auto;   /* 宽度自动调整以保持比例 */
+    margin: 0 auto; /* 让图片水平居中 */
+  }
+</style>
 <!-- Image carousel -->
 <section class="hero is-small">
   <div class="hero-body">
@@ -251,6 +258,70 @@
 </section>
 <!-- End image carousel -->
 
+<!-- START: Qualitative Comparison Videos -->
+<section class="section">
+  <div class="container">
+    <h2 class="title is-3 has-text-centered">Qualitative Comparisons</h2>
+
+    <!-- First Row of Videos -->
+    <div class="columns is-centered is-vcentered">
+      <!-- Video 1: RAW -->
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">RAW</h3>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_1_raw.mp4" loading="lazy"></video>
+      </div>
+      <!-- Video 2: CAT -->
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">CAT</h3>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_2_cat.mp4" loading="lazy"></video>
+      </div>
+      <!-- Video 3: Rule -->
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">Rule</h3>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_1_rule.mp4" loading="lazy"></video>
+      </div>
+      <!-- Video 4: SAGE -->
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">SAGE</h3>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_1_sage.mp4" loading="lazy"></video>
+      </div>
+    </div>
+
+    <!-- Second Row of Videos -->
+    <div class="columns is-centered is-vcentered">
+      <!-- Video 5: RAW -->
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">RAW</h3>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_2_raw.mp4" loading="lazy"></video>
+      </div>
+      <!-- Video 6: CAT -->
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">CAT</h3>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_2_cat.mp4" loading="lazy"></video>
+      </div>
+      <!-- Video 7: Rule -->
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">Rule</h3>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_2_rule.mp4" loading="lazy"></video>
+      </div>
+      <!-- Video 8: SAGE -->
+      <div class="column">
+        <h3 class="title is-4 has-text-centered">SAGE</h3>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_2_sage.mp4" loading="lazy"></video>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- END: Qualitative Comparison Videos -->
+
+<!-- You should add this small style snippet to your CSS or a <style> tag -->
+<style>
+  .column video {
+    width: 100%;
+    height: auto;
+    border-radius: 8px; /* Optional: This adds nice rounded corners to your videos */
+  }
+</style>
 
   <!--BibTex citation -->
 <section class="section" id="BibTeX">
