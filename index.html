@@ -226,30 +226,23 @@
       <div id="results-carousel" class="carousel results-carousel">
         <div class="item">
           <!-- 建议：使用论文 Figure 4 (steerability_visualization.png) -->
-          <img src="static/images/steerability_visualization.png" alt="Visualization of steerable generation from compliant to aggressive cut-in." loading="lazy"/>
+          <img src="static/images/Fig_case_weight.png" alt="Visualization of steerable generation from compliant to aggressive cut-in." loading="lazy"/>
           <h2 class="subtitle has-text-centered">
             <b>Test-Time Steerability</b>: Generated trajectories smoothly transition from compliant to aggressive as the adversarial weight increases from 0.0 to 1.0.
           </h2>
         </div>
         <div class="item">
           <!-- 建议：使用论文 Figure 9 或 10 (qualitative_comparison.png) -->
-          <img src="static/images/qualitative_comparison.png" alt="Comparison of generated scenarios between SAGE and other baseline methods." loading="lazy"/>
+          <img src="static/images/Fig_case_baseline_Supplementary_1.png" alt="Comparison of generated scenarios between SAGE and other baseline methods." loading="lazy"/>
           <h2 class="subtitle has-text-centered">
-            <b>High-Quality Scenarios</b>: Compared to baselines that produce unrealistic or rule-violating behaviors, SAGE generates challenging yet plausible and coherent scenarios.
+            <b>High-Quality Scenarios</b>: SAGE generates challenging yet physically plausible maneuvers, crucial for meaningful safety validation, while baselines often produce awkward or rule-violating trajectories.
           </h2>
         </div>
         <div class="item">
           <!-- 建议：使用论文 Figure 3(a) (pareto_front_graph.png) -->
-          <img src="static/images/pareto_front_graph.png" alt="Pareto front comparison showing SAGE's superior trade-off." loading="lazy"/>
+          <img src="static/images/Fig_pareto_front.png" alt="Pareto front comparison showing SAGE's superior trade-off." loading="lazy"/>
           <h2 class="subtitle has-text-centered">
             <b>Superior Trade-off</b>: Our weight-mixing strategy (blue line) traces a superior Pareto front, achieving better realism for any given level of adversariality compared to other mixing strategies.
-          </h2>
-        </div>
-        <div class="item">
-          <!-- 建议：使用论文 Figure 2 (realism_comparison.png) -->
-          <img src="static/images/realism_comparison.png" alt="Behavioral realism comparison visualization." loading="lazy"/>
-          <h2 class="subtitle has-text-centered">
-            <b>Behavioral Realism</b>: SAGE generates challenging yet physically plausible maneuvers, crucial for meaningful safety validation, while baselines often produce awkward or rule-violating trajectories.
           </h2>
         </div>
       </div>
@@ -258,25 +251,8 @@
 </section>
 <!-- End image carousel -->
 
-<!-- Youtube video -->
-<section class="hero is-small is-light">
-  <div class="hero-body">
-    <div class="container">
-      <h2 class="title is-3">Video Presentation</h2>
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <div class="publication-video">
-            <!-- TODO: 请将您的 SAGE_demo_video_upload.mp4 上传到YouTube，然后将视频ID替换下面的 YOUR_YOUTUBE_ID_HERE -->
-            <iframe src="https://www.youtube.com/embed/YOUR_YOUTUBE_ID_HERE" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- End youtube video -->
 
-<!--BibTex citation -->
+  <!--BibTex citation -->
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <div class="bibtex-header">
