@@ -203,15 +203,12 @@
 <section class="section">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Method Overview</h2>
-        <div class="content has-text-centered">
-          <!-- 建议：将您论文中的 Figure 1 导出为 overview_figure.png 并放置在此处 -->
-          <img src="static/images/Fig_intro.png" alt="Overview of the SAGE framework, showing limitations of existing methods, our solution via test-time alignment, and its application in closed-loop training."/>
-          <p class="is-italic pt-2">
-            <b>Left</b>: Existing methods suffer from a fixed trade-off between adversariality and realism. <b>Center</b>: Our method, <b>SAGE</b>, reframes the problem as preference alignment. We train two expert models (adversarial and realistic) and interpolate their weights at test time to steer generation across a continuous spectrum of behaviors. <b>Right</b>: This steerability is highly effective for dual curriculum learning in closed-loop training.
-          </p>
-        </div>
+      <h2 class="title is-3">Method Overview</h2>
+      <div class="content has-text-centered">
+        <img src="static/images/Fig_intro.png" alt="Overview of the SAGE framework, showing limitations of existing methods, our solution via test-time alignment, and its application in closed-loop training."/>
+        <p class="is-italic pt-2">
+          <b>Left</b>: Existing methods suffer from a fixed trade-off between adversariality and realism. <b>Center</b>: Our method, <b>SAGE</b>, reframes the problem as preference alignment. We train two expert models (adversarial and realistic) and interpolate their weights at test time to steer generation across a continuous spectrum of behaviors. <b>Right</b>: This steerability is highly effective for dual curriculum learning in closed-loop training.
+        </p>
       </div>
     </div>
   </div>
@@ -235,24 +232,27 @@
       <h2 class="title is-3">Results Gallery</h2>
       <div id="results-carousel" class="carousel results-carousel">
         <div class="item">
-          <!-- 建议：使用论文 Figure 4 (steerability_visualization.png) -->
           <img src="static/images/Fig_case_weight.png" alt="Visualization of steerable generation from compliant to aggressive cut-in." loading="lazy"/>
           <h2 class="subtitle has-text-centered">
             <b>Test-Time Steerability</b>: Generated trajectories smoothly transition from compliant to aggressive as the adversarial weight increases from 0.0 to 1.0.
           </h2>
         </div>
         <div class="item">
-          <!-- 建议：使用论文 Figure 9 或 10 (qualitative_comparison.png) -->
           <img src="static/images/Fig_case_baseline.png" alt="Comparison of generated scenarios between SAGE and other baseline methods." loading="lazy"/>
           <h2 class="subtitle has-text-centered">
             <b>High-Quality Scenarios</b>: SAGE generates challenging yet physically plausible maneuvers, crucial for meaningful safety validation, while baselines often produce awkward or rule-violating trajectories.
           </h2>
         </div>
         <div class="item">
-          <!-- 建议：使用论文 Figure 3(a) (pareto_front_graph.png) -->
           <img src="static/images/Fig_pareto_front.png" alt="Pareto front comparison showing SAGE's superior trade-off." loading="lazy"/>
           <h2 class="subtitle has-text-centered">
             <b>Superior Trade-off</b>: Our weight-mixing strategy (blue line) traces a superior Pareto front, achieving better realism for any given level of adversariality compared to other mixing strategies.
+          </h2>
+        </div>
+        <div class="item">
+          <img src="static/images/Fig_RL_results.png" alt="Training performances of the agent under different scenario generation methods." loading="lazy"/>
+          <h2 class="subtitle has-text-centered">
+            <b>Enhanced Driving Policy</b>: The agent trained with our SAGE demonstrates a clear advantage across key metrics like reward and completion rate compared to baseline training methods.
           </h2>
         </div>
       </div>
@@ -260,6 +260,370 @@
   </div>
 </section>
 <!-- End image carousel -->
+
+<!-- START: Results Tables Section -->
+<section class="section">
+  <div class="container">
+
+    <!-- First Table: Replay Policy -->
+    <div class="content">
+      <h2 class="title is-3 has-text-centered">Testing Results: Replay Policy</h2>
+      <p class="subtitle is-5 has-text-centered">
+        Evaluation of adversarial generation methods against the <strong>Replay</strong> policy. Higher is better for Attack Success Rate and Adversarial Reward (↑), while lower is better for penalty metrics (↓).
+      </p>
+    </div>
+    <!-- The container makes the table scrollable on small screens -->
+    <div class="table-container">
+      <table class="table is-bordered is-hoverable is-fullwidth">
+        <thead>
+          <tr>
+            <th rowspan="2" class="is-vcentered">Methods</th>
+            <th rowspan="2" class="is-vcentered">Attack Succ. Rate ↑</th>
+            <th rowspan="2" class="is-vcentered">Adv. Reward ↑</th>
+            <th colspan="2" class="has-text-centered">Real. Pen. ↓</th>
+            <th colspan="2" class="has-text-centered">Map Comp. ↓</th>
+            <th colspan="3" class="has-text-centered">Dist. Diff. (WD)</th>
+          </tr>
+          <tr>
+            <th class="has-text-centered">Behav.</th>
+            <th class="has-text-centered">Kine.</th>
+            <th class="has-text-centered">Crash Obj.</th>
+            <th class="has-text-centered">Cross Line</th>
+            <th class="has-text-centered">Accel.</th>
+            <th class="has-text-centered">Vel.</th>
+            <th class="has-text-centered">Yaw</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Rule</th>
+            <td>100.00%</td>
+            <td>5.048</td>
+            <td>2.798</td>
+            <td>5.614</td>
+            <td>1.734</td>
+            <td>7.724</td>
+            <td>2.080</td>
+            <td>8.546</td>
+            <td>0.204</td>
+          </tr>
+          <tr>
+            <th>CAT</th>
+            <td>94.85%</td>
+            <td>3.961</td>
+            <td>8.941</td>
+            <td>3.143</td>
+            <td>2.466</td>
+            <td>9.078</td>
+            <td>1.556</td>
+            <td>7.233</td>
+            <td>0.225</td>
+          </tr>
+          <tr>
+            <th>KING</th>
+            <td>40.85%</td>
+            <td>2.243</td>
+            <td>5.883</td>
+            <td>3.434</td>
+            <td>3.126</td>
+            <td>6.056</td>
+            <td>0.972</td>
+            <td>255.5</td>
+            <td>0.098</td>
+          </tr>
+          <tr>
+            <th>AdvTrajOpt</th>
+            <td>70.46%</td>
+            <td>2.652</td>
+            <td>4.500</td>
+            <td>2.775</td>
+            <td>2.547</td>
+            <td>10.16</td>
+            <td>1.754</td>
+            <td>6.177</td>
+            <td>0.268</td>
+          </tr>
+          <tr>
+            <th>SEAL</th>
+            <td>63.93%</td>
+            <td>1.269</td>
+            <td>3.017</td>
+            <td>2.423</td>
+            <td>2.732</td>
+            <td>11.612</td>
+            <td>1.544</td>
+            <td>6.959</td>
+            <td>0.202</td>
+          </tr>
+          <!-- SAGE Rows with custom highlighting -->
+          <tr class="highlight-gray-1">
+            <th>SAGE (w<sub>adv</sub>=0.0)</th>
+            <td>16.26%</td>
+            <td>1.065</td>
+            <td>0.332</td>
+            <td>1.998</td>
+            <td>0.677</td>
+            <td>0.948</td>
+            <td>1.459</td>
+            <td>9.313</td>
+            <td>0.054</td>
+          </tr>
+          <tr class="highlight-gray-2">
+            <th>SAGE (w<sub>adv</sub>=0.5)</th>
+            <td>50.41%</td>
+            <td>2.523</td>
+            <td>0.483</td>
+            <td>2.064</td>
+            <td>0.755</td>
+            <td>0.949</td>
+            <td>1.521</td>
+            <td>8.471</td>
+            <td>0.079</td>
+          </tr>
+          <tr class="highlight-gray-3">
+            <th>SAGE (w<sub>adv</sub>=1.0)</th>
+            <td>76.15%</td>
+            <td>4.121</td>
+            <td>1.429</td>
+            <td>2.479</td>
+            <td>0.731</td>
+            <td>1.084</td>
+            <td>2.098</td>
+            <td>8.088</td>
+            <td>0.184</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Spacer -->
+    <br><br>
+
+    <!-- Second Table: RL Policy -->
+    <div class="content">
+      <h2 class="title is-3 has-text-centered">Testing Results: RL Policy</h2>
+      <p class="subtitle is-5 has-text-centered">
+        Evaluation of adversarial generation methods against the <strong>RL</strong> policy.
+      </p>
+    </div>
+    <div class="table-container">
+      <table class="table is-bordered is-hoverable is-fullwidth">
+        <thead>
+          <tr>
+            <th rowspan="2" class="is-vcentered">Methods</th>
+            <th rowspan="2" class="is-vcentered">Attack Succ. Rate ↑</th>
+            <th rowspan="2" class="is-vcentered">Adv. Reward ↑</th>
+            <th colspan="2" class="has-text-centered">Real. Pen. ↓</th>
+            <th colspan="2" class="has-text-centered">Map Comp. ↓</th>
+            <th colspan="3" class="has-text-centered">Dist. Diff. (WD)</th>
+          </tr>
+          <tr>
+            <th class="has-text-centered">Behav.</th>
+            <th class="has-text-centered">Kine.</th>
+            <th class="has-text-centered">Crash Obj.</th>
+            <th class="has-text-centered">Cross Line</th>
+            <th class="has-text-centered">Accel.</th>
+            <th class="has-text-centered">Vel.</th>
+            <th class="has-text-centered">Yaw</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>Rule</th>
+            <td>65.57%</td>
+            <td>2.761</td>
+            <td>2.180</td>
+            <td>113.707</td>
+            <td>1.803</td>
+            <td>6.148</td>
+            <td>10.854</td>
+            <td>13.468</td>
+            <td>0.336</td>
+          </tr>
+          <tr>
+            <th>CAT</th>
+            <td>30.33%</td>
+            <td>1.319</td>
+            <td>8.191</td>
+            <td>3.039</td>
+            <td>2.623</td>
+            <td>6.967</td>
+            <td>1.539</td>
+            <td>8.877</td>
+            <td>0.187</td>
+          </tr>
+          <tr>
+            <th>KING</th>
+            <td>19.14%</td>
+            <td>1.148</td>
+            <td>2.041</td>
+            <td>2.596</td>
+            <td>3.114</td>
+            <td>5.857</td>
+            <td>0.983</td>
+            <td>259.132</td>
+            <td>0.097</td>
+          </tr>
+          <tr>
+            <th>AdvTrajOpt</th>
+            <td>19.40%</td>
+            <td>0.992</td>
+            <td>4.542</td>
+            <td>2.779</td>
+            <td>2.459</td>
+            <td>9.973</td>
+            <td>1.749</td>
+            <td>6.187</td>
+            <td>0.269</td>
+          </tr>
+          <tr>
+            <th>SEAL</th>
+            <td>31.40%</td>
+            <td>0.752</td>
+            <td>5.871</td>
+            <td>2.684</td>
+            <td>3.030</td>
+            <td>11.984</td>
+            <td>1.563</td>
+            <td>8.267</td>
+            <td>0.267</td>
+          </tr>
+          <!-- SAGE Rows with custom highlighting -->
+          <tr class="highlight-gray-1">
+            <th>SAGE (w<sub>adv</sub>=0.0)</th>
+            <td>11.20%</td>
+            <td>0.722</td>
+            <td>0.332</td>
+            <td>2.000</td>
+            <td>0.738</td>
+            <td>0.956</td>
+            <td>1.456</td>
+            <td>9.344</td>
+            <td>0.055</td>
+          </tr>
+          <tr class="highlight-gray-2">
+            <th>SAGE (w<sub>adv</sub>=0.5)</th>
+            <td>13.66%</td>
+            <td>0.819</td>
+            <td>0.496</td>
+            <td>2.066</td>
+            <td>0.820</td>
+            <td>0.820</td>
+            <td>1.515</td>
+            <td>8.475</td>
+            <td>0.080</td>
+          </tr>
+          <tr class="highlight-gray-3">
+            <th>SAGE (w<sub>adv</sub>=1.0)</th>
+            <td>28.42%</td>
+            <td>1.400</td>
+            <td>1.468</td>
+            <td>2.496</td>
+            <td>0.792</td>
+            <td>1.366</td>
+            <td>2.098</td>
+            <td>8.114</td>
+            <td>0.188</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<!-- END: Results Tables Section -->
+
+<!-- START: Evaluation of Trained RL Policies in the Log-replay (Normal, WOMD) Environments. -->
+<section class="section">
+  <div class="container">
+    <h2 class="title is-3 has-text-centered">Closed-loop RL Training</h2>
+    <p class="subtitle is-5 has-text-centered">
+      Evaluation of Trained RL Policies in the Log-replay (Normal, WOMD) Environments.
+    </p>
+
+    <div class="table-container">
+      <table class="table is-bordered is-striped is-fullwidth">
+        <thead>
+          <tr>
+            <th class="is-vcentered">Methods</th>
+            <th class="is-vcentered">Reward ↑</th>
+            <th class="is-vcentered">Cost ↓</th>
+            <th class="is-vcentered">Compl. ↑</th>
+            <th class="is-vcentered">Coll. ↓</th>
+            <th class="is-vcentered">Ave. Speed ↑</th>
+            <th class="is-vcentered">Ave. Jerk ↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight-gray-2">
+            <th>SAGE</th>
+            <td><b>51.99 ± 1.22</b></td>
+            <td><b>0.48 ± 0.05</b></td>
+            <td><b>0.77 ± 0.02</b></td>
+            <td>0.16 ± 0.05</td>
+            <td><b>9.27 ± 0.03</b></td>
+            <td><b>24.97 ± 0.53</b></td>
+          </tr>
+          <tr>
+            <th>CAT</th>
+            <td>46.81 ± 4.33</td>
+            <td>0.50 ± 0.05</td>
+            <td>0.67 ± 0.02</td>
+            <td>0.18 ± 0.05</td>
+            <td>7.21 ± 0.05</td>
+            <td>28.15 ± 1.06</td>
+          </tr>
+          <tr>
+            <th>Replay (No Adv)</th>
+            <td>50.16 ± 5.32</td>
+            <td>0.50 ± 0.07</td>
+            <td>0.72 ± 0.04</td>
+            <td>0.23 ± 0.02</td>
+            <td>9.03 ± 0.03</td>
+            <td>27.53 ± 0.98</td>
+          </tr>
+          <tr>
+            <th>Rule-based Adv</th>
+            <td>44.61 ± 3.88</td>
+            <td>0.52 ± 0.05</td>
+            <td>0.63 ± 0.04</td>
+            <td><b>0.13 ± 0.00</b></td>
+            <td>6.00 ± 0.10</td>
+            <td>28.22 ± 1.44</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<!-- END: Evaluation of Trained RL Policies in the Log-replay (Normal, WOMD) Environments. -->
+  
+  
+<!-- Add this CSS to the <head> of your HTML, or inside another <style> tag -->
+<style>
+  /* Center the content of table cells */
+  .table th, .table td {
+    text-align: center !important;
+    vertical-align: middle !important;
+  }
+  /* Left-align the first column header (Methods) */
+  .table th:first-child {
+    text-align: left !important;
+  }
+  /* Custom background colors to match your LaTeX table */
+  .highlight-gray-1 {
+    background-color: #f2f2f2; /* Corresponds to gray!10 */
+  }
+  .highlight-gray-2 {
+    background-color: #e6e6e6; /* Corresponds to gray!25 */
+  }
+  .highlight-gray-3 {
+    background-color: #d9d9d9; /* Corresponds to gray!40 */
+  }
+  /* Improve readability of subscript in table headers */
+  .table th sub {
+    font-size: 0.7em;
+  }
+</style>
 
 <!-- START: Qualitative Comparison Videos -->
 <section class="section">
@@ -276,7 +640,7 @@
       <!-- Video 2: CAT -->
       <div class="column">
         <h3 class="title is-4 has-text-centered">CAT</h3>
-        <video playsinline autoplay loop muted src="static/videos/compare_baseline_2_cat.mp4" loading="lazy"></video>
+        <video playsinline autoplay loop muted src="static/videos/compare_baseline_1_cat.mp4" loading="lazy"></video>
       </div>
       <!-- Video 3: Rule -->
       <div class="column">
