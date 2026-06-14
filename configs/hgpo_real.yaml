@@ -1,0 +1,11 @@
+data_directory: ./raw_scenes_500
+split_file: ./configs/splits/sage_womd_500.json
+base_model_path: ./advgen/pretrained/densetnt.bin
+save_path: ./advgen/finetuned/grpo_finetuned_model_real.bin
+learning_rate: 1.0e-5
+beta: 0.05
+epochs: 200
+num_pairs_per_group: 8
+reward_margin: 0.2
+adversarial_weight: 1.0
+realism_weight: 10.0

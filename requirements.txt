@@ -1,0 +1,14 @@
+Cython>=0.29
+gym
+matplotlib
+numpy
+pandas
+panda3d
+panda3d-simplepbr
+pygame
+PyYAML
+scipy
+shapely
+tensorboard
+torch
+tqdm

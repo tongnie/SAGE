@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.dylib
+*.dll
+*.obj
+*.lib
+*.exp
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# Local data and checkpoints
+raw_scenes*/
+advgen/pretrained/*.bin
+advgen/finetuned/*.bin
+*.pth
+*.pt
+*.ckpt
+models/
+
+# Experiment outputs
+logs/
+runs/
+testlogs/
+saved_results/
+saved_rl_run/
+image/
+tmp/
+events.out.tfevents*
+*.csv
+*.png
+*.gif
+*.mp4
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "Cython>=0.29", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sage-adversarial-generation"
+version = "0.1.0"
+description = "SAGE: Steerable Adversarial Scenario Generation through Test-Time Preference Alignment"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "Tong Nie"}]
+dependencies = [
+  "Cython>=0.29",
+  "gym",
+  "matplotlib",
+  "numpy",
+  "pandas",
+  "panda3d",
+  "panda3d-simplepbr",
+  "pygame",
+  "PyYAML",
+  "scipy",
+  "shapely",
+  "tensorboard",
+  "torch",
+  "tqdm"
+]
+
+[tool.setuptools]
+py-modules = ["metadrive_autopilot_safe"]
+
+[tool.setuptools.packages.find]
+include = ["sage*", "advgen*", "metadrive*", "saferl_algo*", "saferl_plotter*"]
+exclude = ["tests*"]

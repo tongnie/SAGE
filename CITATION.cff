@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use SAGE, please cite the ICLR 2026 paper."
+title: "Steerable Adversarial Scenario Generation through Test-Time Preference Alignment"
+authors:
+  - family-names: Nie
+    given-names: Tong
+  - family-names: Mei
+    given-names: Yuewen
+  - family-names: Tang
+    given-names: Yihong
+  - family-names: He
+    given-names: Junlin
+  - family-names: Sun
+    given-names: Jie
+  - family-names: Shi
+    given-names: Haotian
+  - family-names: Ma
+    given-names: Wei
+  - family-names: Sun
+    given-names: Jian
+conference: "International Conference on Learning Representations"
+year: 2026
+url: "https://openreview.net/forum?id=lYNsZdKn5R"
