@@ -134,7 +134,6 @@ if __name__ == "__main__":
     # # touch these items so that pickle can work
 
     # file_path = AssetLoader.file_path("waymo", "0.pkl", return_raw_style=False)
-    # # file_path = "./raw_scenes_500/60.pkl"
     # data = read_scenario_data(file_path)
 
     default_config = ScenarioEnv.default_config()
@@ -143,7 +142,6 @@ if __name__ == "__main__":
     default_config["debug_static_world"] = True
     default_config["data_directory"] = AssetLoader.file_path("waymo", return_raw_style=False)
     # default_config["data_directory"] = AssetLoader.file_path("nuscenes", return_raw_style=False)
-    # default_config["data_directory"] = "./raw_scenes_500"
     default_config["num_scenarios"] = 1
     engine = initialize_engine(default_config)
 

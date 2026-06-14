@@ -6,7 +6,7 @@ SAGE treats adversarial scenario generation as multi-objective preference alignm
 
 - Paper: https://openreview.net/forum?id=lYNsZdKn5R
 - Project page: https://tongnie.github.io/SAGE/
-- Checkpoints: see [docs/checkpoints.md](docs/checkpoints.md)
+- Checkpoints: https://drive.google.com/drive/folders/1PPusEI9g12JrZ1BNczIvHZWQe3RjAhLn?usp=sharing
 
 ## What Is Included
 
@@ -37,7 +37,11 @@ python scripts/prepare_waymo.py --help
 python scripts/select_cases.py --help
 ```
 
-Expected local layout:
+Download the released checkpoints from Google Drive:
+
+https://drive.google.com/drive/folders/1PPusEI9g12JrZ1BNczIvHZWQe3RjAhLn?usp=sharing
+
+Place the files under the following local paths:
 
 ```text
 raw_scenes_500/
@@ -47,7 +51,7 @@ advgen/finetuned/hgpo_finetuned_model_adv_best.bin
 advgen/finetuned/hgpo_finetuned_model_real_best.bin
 ```
 
-Checkpoint filenames, SHA256 values, and Google Drive placeholders are listed in [docs/checkpoints.md](docs/checkpoints.md).
+HGPO fine-tuning also expects a scenario summary CSV, passed with `--scenario_csv_path` and defaulting to `autopilot_v2.csv`. This file is generated from your processed CAT/WOMD scenarios and is not included in the repository.
 
 ## Train HGPO Experts
 
