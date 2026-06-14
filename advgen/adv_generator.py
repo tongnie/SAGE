@@ -111,7 +111,7 @@ class AdvGenerator():
         advgen.utils.add_argument(parser)
         parser.set_defaults(other_params=['l1_loss','densetnt', 'goals_2D', 'enhance_global_graph' ,'laneGCN' ,'point_sub_graph', 'laneGCN-4' ,'stride_10_2' ,'raster' ,'train_pair_interest'])
         parser.set_defaults(mode_num=32)
-        args = parser.parse_args()
+        args, _ = parser.parse_known_args()
         logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO)
@@ -161,7 +161,7 @@ class AdvGenerator():
                 AV_probs = AV_probs,
                 AV_trajs_eval = AV_trajs_eval,
             )
-        
+
         self.ego_vel = []
         self.ego_heading = []
         
@@ -202,9 +202,9 @@ class AdvGenerator():
         scenario_data = self.env.engine.data_manager._scenario[self.env.current_seed]
         
         default_agent = scenario_data['metadata']['sdc_id']
-        objects_of_interest = (scenario_data['metadata']['objects_of_interest']).copy()  # 我在这儿加了copy就ok了
+        objects_of_interest = (scenario_data['metadata']['objects_of_interest']).copy()
         assert len(objects_of_interest) == 2 and default_agent in objects_of_interest
-        objects_of_interest.remove(default_agent)  # 这里要定位背景车id，所以删掉了主车，导致下次调用这个数据处理函数的时候，ooi里只剩背景车了
+        objects_of_interest.remove(default_agent)
         adv_agent = objects_of_interest[0]
         
         raw_map_features = scenario_data['map_features']
@@ -400,7 +400,7 @@ class AdvGenerator():
         features_description.update(map_features)
         features_description.update(state_features)
         features_description.update(traffic_light_features)
-        features_description['scenario/id'] = np.array(['template'])
+        features_description['scenario/id'] = np.array([str(self.env.current_seed)])
         features_description['state/objects_of_interest'] = state_features['state/tracks_to_predict'].copy()
         for k,v in features_description.items():
             features_description[k] = tf.convert_to_tensor(v)
@@ -520,4 +520,3 @@ class AdvGenerator():
         self.adv_traj = list(np.concatenate((adv_pos,adv_vel,adv_yaw),axis=1))
 
         return traffic_motion_feat,self.adv_traj,trajs_AV,any(res)
-        

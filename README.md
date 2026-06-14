@@ -2,7 +2,7 @@
 
 Official code release for **Steerable Adversarial Scenario Generation through Test-Time Preference Alignment** (ICLR 2026).
 
-SAGE treats adversarial scenario generation as multi-objective preference alignment. It trains two HGPO/DPO experts with opposing preferences, then steers test-time generation by interpolating their weights.
+SAGE treats adversarial scenario generation as multi-objective preference alignment. It trains two HGPO experts with opposing preferences, then steers test-time generation by interpolating their weights.
 
 - Paper: https://openreview.net/forum?id=lYNsZdKn5R
 - Project page: https://tongnie.github.io/SAGE/

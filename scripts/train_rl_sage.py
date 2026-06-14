@@ -10,24 +10,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-import gym
 import numpy as np
-import pandas as pd
 import torch
 import torch.backends.cudnn as cudnn
-from shapely.geometry import LineString, Polygon
-from shapely.strtree import STRtree
 from tqdm import tqdm
 
 # MetaDrive Imports
 from metadrive.envs.real_data_envs.waymo_env import WaymoEnv
 from metadrive.policy.replay_policy import ReplayEgoCarPolicy
 
-# AdvGen Imports
 from advgen.adv_utils import process_data
 from advgen.modeling.vectornet import VectorNet
 import advgen.utils as advgen_utils
-# <<< MODIFICATION >>> 我们需要原始的AdvGenerator来复用它的数据解析和轨迹存储逻辑
 from advgen.adv_generator import AdvGenerator as OriginalAdvGenerator
 from torch.utils.tensorboard import SummaryWriter
 
@@ -37,7 +31,7 @@ from saferl_plotter.logger import SafeLogger
 
 
 def moving_average(data, window_size):
-    """平滑数据序列。"""
+    """Smooth a numeric sequence with an edge-padded moving average."""
     interval = np.pad(data, window_size // 2, 'edge')
     window = np.ones(int(window_size)) / float(window_size)
     res = np.convolve(interval, window, 'valid')
@@ -45,7 +39,7 @@ def moving_average(data, window_size):
 
 
 def get_polyline_yaw(polyline):
-    """计算轨迹每个点的朝向角（yaw）。"""
+    """Compute yaw for each trajectory point."""
     if len(polyline) < 2: return np.zeros(len(polyline))
     polyline_post = np.roll(polyline, shift=-1, axis=0)
     diff = polyline_post - polyline
@@ -60,7 +54,7 @@ def get_polyline_yaw(polyline):
 
 
 def get_polyline_vel(polyline):
-    """根据位移和时间步长（0.1s）计算速度。"""
+    """Compute velocity from displacement with a 0.1 second time step."""
     polyline_post = np.roll(polyline, shift=-1, axis=0)
     polyline_post[-1] = polyline[-1]
     diff = polyline_post - polyline
@@ -69,7 +63,7 @@ def get_polyline_vel(polyline):
 
 
 def Intersect(l1, l2):
-    """判断两条线段是否相交（用于碰撞检测）。"""
+    """Return whether two line segments intersect."""
     v1 = (l1[0] - l2[0], l1[1] - l2[1]);
     v2 = (l1[0] - l2[2], l1[1] - l2[3]);
     v0 = (l1[0] - l1[2], l1[1] - l1[3])
@@ -90,12 +84,11 @@ class MotionModel:
     def __init__(self, model_path: str, device: torch.device):
         parser = argparse.ArgumentParser()
         advgen_utils.add_argument(parser)
-        # 设置模型默认参数，与训练时保持一致
         parser.set_defaults(
             other_params=['l1_loss', 'densetnt', 'goals_2D', 'enhance_global_graph', 'laneGCN', 'point_sub_graph',
                           'laneGCN-4', 'stride_10_2', 'raster', 'train_pair_interest'])
         parser.set_defaults(mode_num=32, future_frame_num=80)
-        args, _ = parser.parse_known_args()  # 使用 parse_known_args 避免与主脚本冲突
+        args, _ = parser.parse_known_args()
 
         dummy_logger = logging.getLogger(f"dummy_logger_{model_path}")
         advgen_utils.init(args, dummy_logger)
@@ -107,7 +100,7 @@ class MotionModel:
         self.model.load_state_dict(torch.load(model_path, map_location=self.device))
 
     def _get_full_context_for_batch(self, batch_data: list):
-        """为批次中的所有agent计算共享的上下文特征 (hidden_states)。"""
+        """Compute shared context states for all agents in the batch."""
         all_mappings = batch_data[0]
         element_states_batch, _ = self.model.forward_encode_sub_graph(
             all_mappings, [m['matrix'] for m in all_mappings], [m['polyline_spans'] for m in all_mappings],
@@ -126,10 +119,10 @@ class MotionModel:
 
     @torch.no_grad()
     def get_goal_scores(self, batch_data: list) -> torch.Tensor:
-        """获取攻击车候选目标点的分数（log-probabilities）。"""
+        """Return candidate goal log-probabilities for the adversarial agent."""
         merged_inputs, hidden_states, inputs_lengths, all_mappings = self._get_full_context_for_batch(batch_data)
 
-        adv_agent_idx = 1  # 攻击车在batch中通常是索引1
+        adv_agent_idx = 1
         adv_mapping = all_mappings[adv_agent_idx]
         goals_2D_tensor = torch.tensor(adv_mapping['goals_2D'], device=self.device, dtype=torch.float)
 
@@ -141,7 +134,7 @@ class MotionModel:
 
     @torch.no_grad()
     def generate_trajectory_from_goal(self, batch_data: list, goal_pos: np.ndarray) -> np.ndarray:
-        """为给定的单个目标点生成最终轨迹。"""
+        """Generate a trajectory for one selected target goal."""
         merged_inputs, hidden_states, inputs_lengths, all_mappings = self._get_full_context_for_batch(batch_data)
 
         adv_agent_idx = 1
@@ -157,20 +150,18 @@ class MotionModel:
         # `target_feature_unsqueezed`.shape: [1, 1, hidden_dim]
         target_feature_unsqueezed = target_feature.unsqueeze(1)
 
-        # hidden_attention 的计算
         hidden_attention = self.model.decoder.tnt_cross_attention(
-            target_feature_unsqueezed,  # <--- 使用修正后的张量
+            target_feature_unsqueezed,
             merged_inputs[adv_agent_idx][:inputs_lengths[adv_agent_idx]].unsqueeze(0)
         )
 
-        # `tnt_decoder` 的输入需要将 attention 的 seq_len 维度去掉
         # `hidden_attention`.shape: [1, 1, hidden_dim] -> .squeeze(1) -> [1, hidden_dim]
         hidden_attention_squeezed = hidden_attention.squeeze(1)
 
         predict_traj_local = self.model.decoder.tnt_decoder(
             torch.cat([hidden_states[adv_agent_idx, 0, :].unsqueeze(0),
-                       target_feature,  # decoder的输入仍然是原始的 [1, dim] 特征
-                       hidden_attention_squeezed], dim=-1)  # 使用squeeze后的attention
+                       target_feature,
+                       hidden_attention_squeezed], dim=-1)
         ).view([self.model.decoder.future_frame_num, 2])
 
         predict_traj_world = adv_mapping['normalizer'](predict_traj_local.cpu().numpy(), reverse=True)
@@ -183,27 +174,21 @@ from sage.rewards import calculate_map_violation_penalty, calculate_realism_pena
 
 
 class SAGEAdvGeneratorForRL:
-    def __init__(self, parser, mod_args):
-        self.mod_args = mod_args
+    def __init__(self, parser, sage_args):
+        self.sage_args = sage_args
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # 1. 加载两个模型: 对抗性模型和真实性模型
-        self.adversarial_model = MotionModel(mod_args.adversarial_model_path, self.device)
-        self.realism_model = MotionModel(mod_args.realism_model_path, self.device)
+        self.adversarial_model = MotionModel(sage_args.adversarial_model_path, self.device)
+        self.realism_model = MotionModel(sage_args.realism_model_path, self.device)
         print("SAGE models (adversarial and realism experts) loaded successfully.")
 
-        # 2. 初始化课程学习的权重
-        self.current_w_adv = mod_args.initial_w_adv
+        self.current_w_adv = sage_args.initial_w_adv
 
-        # 3. <<< MODIFICATION >>> 内部使用原始生成器来复用其复杂的数据解析和轨迹存储逻辑
-        # 我们需要从 baseline 脚本中获取 AV_traj_num 参数
         _parser = argparse.ArgumentParser()
         _parser.add_argument('--OV_traj_num', type=int, default=32)
-        _parser.add_argument('--AV_traj_num', type=int, default=5)  # 关键参数，定义存储多少条主车历史轨迹
-        # 其他参数可以从你的主 `args` 传递
+        _parser.add_argument('--AV_traj_num', type=int, default=5)
         _args, _ = _parser.parse_known_args()
 
-        # 将原始生成器需要的参数传递给它
         advgen_parser_for_original = argparse.ArgumentParser()
         advgen_parser_for_original.add_argument('--AV_traj_num', type=int, default=_args.AV_traj_num)
 
@@ -213,52 +198,48 @@ class SAGEAdvGeneratorForRL:
         self.env = None
 
     def update_weights(self, global_timestep: int= None, max_timesteps: int= None):
-        """根据训练进度更新对抗性权重，实现课程学习。"""
+        """Update the curriculum adversarial weight."""
         if global_timestep is None:
             global_timestep = 0
         if max_timesteps is None:
-            max_timesteps = self.mod_args.max_timesteps
+            max_timesteps = self.sage_args.max_timesteps
         progress_cap = max_timesteps * 2 / 3
         progress = min(global_timestep / progress_cap, 1.0)
-        self.current_w_adv = self.mod_args.initial_w_adv + \
-                             (self.mod_args.final_w_adv - self.mod_args.initial_w_adv) * progress
+        self.current_w_adv = self.sage_args.initial_w_adv + \
+                             (self.sage_args.final_w_adv - self.sage_args.initial_w_adv) * progress
 
 
     def set_evaluation_weights(self, w_adv: float):
-        """临时设置固定的评估权重。"""
+        """Set a fixed evaluation-time adversarial weight."""
         self._training_w_adv = self.current_w_adv
         self.current_w_adv = w_adv
         print(f"Set evaluation mode with fixed w_adv = {self.current_w_adv}")
 
     def restore_training_weights(self):
-        """恢复训练权重。"""
+        """Restore the training-time curriculum weight."""
         if hasattr(self, '_training_w_adv'):
             self.current_w_adv = self._training_w_adv
             del self._training_w_adv
             print(f"Restored training mode with w_adv = {self.current_w_adv}")
 
-    # <<< 闭环逻辑关键点 1 >>>: 添加必要的接口函数，直接调用内部生成器的同名函数
     def before_episode(self, env):
         self.env = env
-        # 复用原始生成器的场景数据解析和存储初始化
         self._internal_adv_generator.before_episode(env)
 
     def log_AV_history(self):
-        """在每一步记录主车轨迹。"""
-        # 这个函数现在只是一个简单的包装，实际工作由内部生成器完成。
+        """Record ego-vehicle history for closed-loop generation."""
         self._internal_adv_generator.log_AV_history()
 
     def after_episode(self, update_AV_traj=False, mode='train'):
-        """在一个回合结束后，处理并存储记录下的主车轨迹。"""
+        """Update the stored ego-vehicle trajectory after an episode."""
         self._internal_adv_generator.after_episode(update_AV_traj=update_AV_traj, mode=mode)
 
     @property
     def adv_agent(self):
-        # 保持不变，用于获取对抗车辆的ID
         return self._internal_adv_generator.storage.get(self.env.current_seed, {}).get('adv_agent')
 
     def get_data_for_scenario(self, env, mode='train'):
-        """辅助函数用于获取所有需要的数据。"""
+        """Collect model inputs, scene metadata, and the ego trajectory."""
         storage_entry = self._internal_adv_generator.storage[env.current_seed]
         traffic_motion_feat = storage_entry['traffic_motion_feat']
         batch_data = process_data(traffic_motion_feat, self.adversarial_model.args)
@@ -267,17 +248,12 @@ class SAGEAdvGeneratorForRL:
         ego_info = storage_entry['ego_info']
         raw_map_features = env.engine.data_manager.get_scenario(env.current_seed)['map_features']
 
-        # <<< 闭环逻辑关键点 2 >>>: 使用RL智能体的最新轨迹，而不是数据集中的GT轨迹
-        # 根据是训练还是评估，从不同的deque中获取轨迹
         ego_traj_deque = storage_entry.get('AV_trajs_eval' if mode == 'eval' else 'AV_trajs')
 
-        # 使用deque中最新的轨迹。如果deque为空（例如，在第一次运行某个场景时），则回退到使用原始GT轨迹
         if ego_traj_deque and len(ego_traj_deque) > 0:
-            # -1 索引获取最新添加的轨迹
             latest_ego_traj = ego_traj_deque[-1]
             print(f"[{mode.upper()} mode] Using latest RL agent trajectory for generation.")
         else:
-            # 回退方案：使用数据集中的真值轨迹
             print(f"[{mode.upper()} mode] RL agent trajectory not available, falling back to GT trajectory.")
             ego_gt_future_traj_x = traffic_motion_feat['state/future/x'].numpy()[0, :, np.newaxis]
             ego_gt_future_traj_y = traffic_motion_feat['state/future/y'].numpy()[0, :, np.newaxis]
@@ -287,12 +263,11 @@ class SAGEAdvGeneratorForRL:
 
     def generate(self, mode='train'):
         """
-        核心MOD生成函数。现在它使用RL智能体最近的行为来生成对抗场景。
-        `mode`参数 ('train' or 'eval') 决定了从哪个主车轨迹存储中取数据。
+        Generate a SAGE adversarial trajectory from recent RL-agent behavior.
+
+        The mode selects either the training or evaluation ego-trajectory buffer.
         """
-        # 1. 获取当前场景所需的数据
         try:
-            # <<< 闭环逻辑关键点 3 >>>: 传递mode参数
             batch_data, traffic_motion_feat, adv_info, ego_info, ego_agent_future_traj, adv_past_traj, raw_map_features = self.get_data_for_scenario(
                 self.env, mode=mode)
         except (KeyError, IndexError) as e:
@@ -301,7 +276,6 @@ class SAGEAdvGeneratorForRL:
             self.adv_traj = []
             return
 
-        # 2. 创建融合模型 (这部分逻辑保持不变)
         w_real = 1.0 - self.current_w_adv
         souped_vectornet_model = create_souped_model(
             self.adversarial_model.model, self.realism_model.model,
@@ -310,15 +284,13 @@ class SAGEAdvGeneratorForRL:
         temp_souped_model_wrapper = deepcopy(self.adversarial_model)
         temp_souped_model_wrapper.model = souped_vectornet_model
 
-        # 3. 生成候选轨迹并计算奖励 (这部分逻辑也基本不变)
-        pred_trajs_list, _, _ = temp_souped_model_wrapper.model(batch_data[0], self.device, return_tensors_for_dpo=True)
+        pred_trajs_list, _, _ = temp_souped_model_wrapper.model(batch_data[0], self.device, return_tensors_for_hgpo=True)
         adv_candidate_trajs_np = pred_trajs_list[1]
         rewards = []
         for traj in adv_candidate_trajs_np:
             realism_penalties = calculate_realism_penalty(traj, adv_info)
             total_realism_penalty = (realism_penalties["behavior_penalty"] + realism_penalties["kinematic_penalty"])
 
-            # <<< 闭环逻辑关键点 4 >>>: 使用获取到的最新主车轨迹来计算对抗性奖励
             adversarial_rew, is_collision = calculate_adversarial_reward(traj, ego_agent_future_traj, adv_info,
                                                                          ego_info)
 
@@ -330,7 +302,6 @@ class SAGEAdvGeneratorForRL:
         winner_idx = np.argmax(rewards)
         adv_winner_traj_future = adv_candidate_trajs_np[winner_idx]
 
-        # 4. 格式化轨迹 (这部分逻辑保持不变)
         adv_pos = np.concatenate((adv_past_traj, adv_winner_traj_future), axis=0)
         adv_yaw = get_polyline_yaw(adv_pos).reshape(-1, 1)
         adv_vel = get_polyline_vel(adv_pos)
@@ -350,8 +321,6 @@ def eval_policy(policy, eval_env, adv_generator, eval_episodes=70, eval_w_adv=0.
                 episode_reward = 0
                 episode_cost = 0
                 while not done:
-                    # <<< 闭环逻辑关键点 5 >>>: 在正常场景评估中，记录主车轨迹
-                    # 这是为了让生成器了解当前策略在评估环境中的行为模式
                     adv_generator.log_AV_history()
                     action = policy.select_action(np.array(state))
                     state, reward, done, info = eval_env.step(action)
@@ -362,10 +331,9 @@ def eval_policy(policy, eval_env, adv_generator, eval_episodes=70, eval_w_adv=0.
                 _costs_coll.append(float(info.get('crash_vehicle', False)))
                 _rewards.append(episode_reward)
                 _costs.append(episode_cost)
-                # <<< 闭环逻辑关键点 6 >>>: 回合结束后，更新生成器的评估轨迹库
                 adv_generator.after_episode(update_AV_traj=True, mode='eval')
             except Exception as e:
-                print(f'!!!!!!!!!!!!! Episode {ep_num} Normal Test Bug: {e} !!!!!!!!!!!!!!')
+                print(f"Warning: normal evaluation episode {ep_num} failed: {e}")
                 _rewards.append(0.0)
                 _costs.append(1.0)
 
@@ -381,8 +349,6 @@ def eval_policy(policy, eval_env, adv_generator, eval_episodes=70, eval_w_adv=0.
             try:
                 state, done = eval_env.reset(), False
                 adv_generator.before_episode(eval_env)
-                # <<< 闭环逻辑关键点 7 >>>: 调用生成器，并明确告知使用'eval'模式
-                # 生成器现在会使用刚才在正常场景中收集到的主车轨迹
                 adv_generator.generate(mode='eval')
                 eval_env.engine.traffic_manager.set_adv_info(adv_generator.adv_agent, adv_generator.adv_traj)
                 episode_reward = 0
@@ -398,7 +364,7 @@ def eval_policy(policy, eval_env, adv_generator, eval_episodes=70, eval_w_adv=0.
                 _rewards.append(episode_reward)
                 _costs.append(episode_cost)
             except Exception as e:
-                print(f'!!!!!!!!!!!!! Episode {ep_num} ADV Test Bug: {e} !!!!!!!!!!!!!!')
+                print(f"Warning: adversarial evaluation episode {ep_num} failed: {e}")
                 _rewards.append(0.0)
                 _costs.append(1.0)
 
@@ -437,7 +403,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--adversarial_model_path', type=str,
                         default='./advgen/finetuned/hgpo_finetuned_model_adv_best.bin',
-                        help="Path to the DPO fine-tuned adversarial model.")
+                        help="Path to the HGPO fine-tuned adversarial model.")
     parser.add_argument('--realism_model_path', type=str,
                         default='./advgen/finetuned/hgpo_finetuned_model_real_best.bin',
                         help="Path to the original pre-trained model for realism.")
@@ -461,7 +427,7 @@ if __name__ == "__main__":
     print(f"Policy: {args.policy}, Env: {args.env}, Seed: {args.seed}, Method: SAGE (Closed-Loop)")
     print("---------------------------------------")
     print("Initializing SAGE adversarial generator for RL...")
-    adv_generator = SAGEAdvGeneratorForRL(parser, mod_args=args)  # parser会把AV_traj_num等参数传进去
+    adv_generator = SAGEAdvGeneratorForRL(parser, sage_args=args)
 
     config_train = dict(
         data_directory=args.data_directory,
@@ -532,7 +498,7 @@ if __name__ == "__main__":
     # --- Main Training Loop ---
     scenario_random_seed = np.random.randint(0, 300)
     state, done = env.reset(force_seed=scenario_random_seed), False
-    adv_generator.before_episode(env)  # 初始化
+    adv_generator.before_episode(env)
 
     episode_reward = 0
     episode_cost = 0
@@ -543,12 +509,10 @@ if __name__ == "__main__":
     for t in range(int(args.max_timesteps)):
         episode_timesteps += 1
 
-        # <<< 闭环逻辑关键点 8 >>>: 在每一步，记录主车的历史轨迹
         adv_generator.log_AV_history()
 
         adv_generator.update_weights(t, args.max_timesteps)
 
-        # Select action (保持不变)
         if t < args.start_timesteps:
             action = env.action_space.sample()
         else:
@@ -557,7 +521,6 @@ if __name__ == "__main__":
                                        size=env.action_space.shape[0])
                       ).clip(-env.action_space.high[0], env.action_space.high[0])
 
-        # Perform action, store in buffer, train (保持不变)
         next_state, reward, done, info = env.step(action)
         replay_buffer.add(state, action, next_state, reward, float(done))
         crash = env.vehicle.crash_vehicle
@@ -569,10 +532,8 @@ if __name__ == "__main__":
             policy.train(replay_buffer, args.batch_size)
 
         if done:
-            # <<< 闭环逻辑关键点 9 >>>: 回合结束后，更新生成器的训练轨迹库
             adv_generator.after_episode(update_AV_traj=True, mode='train')
 
-            # 日志记录 (保持不变)
             writer.add_scalar('Train/episode_reward', episode_reward, t)
             writer.add_scalar('Train/route_completion', info['route_completion'], t)
             if info['out_of_road']:
@@ -591,14 +552,14 @@ if __name__ == "__main__":
                 print("\n--- Running Evaluation ---")
                 env.close()
                 eval_env = WaymoEnv(config=config_test)
-                eval_env.seed(args.seed)  # 确保评估环境也使用种子
+                eval_env.seed(args.seed)
                 eval_env.action_space.seed(args.seed)
                 evalReward_normal, evalRC_normal, evalCost_normal, evalCrash_normal, evalReward_adv, evalRC_adv, evalCost_adv, evalCrash_adv = eval_policy(policy, eval_env,
                                                                                          adv_generator,
                                                                                          eval_w_adv=args.eval_w_adv)
                 eval_env.close()
                 env = WaymoEnv(config=config_train)
-                env.seed(args.seed)  # 重新创建训练环境后也要设置种子
+                env.seed(args.seed)
                 env.action_space.seed(args.seed)
 
                 logger.update([evalRC_normal, evalCrash_normal, evalRC_adv, evalCrash_adv], total_steps=t + 1)
@@ -631,7 +592,6 @@ if __name__ == "__main__":
             if np.random.random() > max(1-(2*t/args.max_timesteps)*(1-args.min_prob),args.min_prob):
                 print(
                     f'>>> Generating SAGE Adversarial Scenario (w_adv={adv_generator.current_w_adv:.3f}) <<<')
-                # <<< 闭环逻辑关键点 10 >>>: 调用生成器，并明确告知使用'train'模式
                 adv_generator.generate(mode='train')
                 writer.add_scalar('Scenario_seed/adv', 1, t+1)
             else:

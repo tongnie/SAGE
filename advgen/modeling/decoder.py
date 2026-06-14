@@ -362,9 +362,8 @@ class Decoder(nn.Module):
             return outputs, pred_probs, None
         return loss.mean(), DE, None
 
-    # MODIFICATION: Add return_tensors_for_dpo argument
     def forward(self, mapping: List[Dict], batch_size, lane_states_batch: List[Tensor], inputs: Tensor,
-                inputs_lengths: List[int], hidden_states: Tensor, device, return_tensors_for_dpo=False):
+                inputs_lengths: List[int], hidden_states: Tensor, device, return_tensors_for_hgpo=False):
         """
         :param lane_states_batch: each value in list is hidden states of lanes (value shape ['lane num', hidden_size])
         :param inputs: hidden states of all elements before encoding by global graph (shape [batch_size, 'element num', hidden_size])
@@ -372,59 +371,40 @@ class Decoder(nn.Module):
         :param hidden_states: hidden states of all elements after encoding by global graph (shape [batch_size, 'element num', hidden_size])
         """
 
-        # ====================================================================================
-        # START: New logic block for DPO (Corrected and with Coordinate Transformation)
-        # ====================================================================================
-        if return_tensors_for_dpo:
-            # [修改] pred_trajs_list现在将存储Numpy数组，因为逆转换后就是Numpy格式
+        if return_tensors_for_hgpo:
             pred_trajs_list_np = []
             pred_scores_list_t = []
 
             for i in range(batch_size):
-                # 1. 获取所有候选目标点及其分数 (与原始逻辑相同)
                 goals_2D = mapping[i]['goals_2D']
                 goals_2D_tensor = torch.tensor(goals_2D, device=device, dtype=torch.float)
                 scores = self.get_scores(goals_2D_tensor, inputs, hidden_states, inputs_lengths, i, mapping, device)
 
-                # 2. [新增] 从所有候选中筛选出 top-k 个，修复性能和逻辑问题
-                # 使用 min() 防止候选目标点总数少于 self.mode_num 的情况
                 k = min(self.mode_num, len(scores))
                 top_k_scores, top_k_indices = torch.topk(scores, k=k)
 
-                # 3. [新增] 使用 top-k 的索引来选择对应的目标点
                 goals_2D_tensor_topk = goals_2D_tensor[top_k_indices]
 
-                # 4. [修改] 只为这 top-k 个目标点计算特征和注意力
                 targets_feature_topk = self.goals_2D_mlps(goals_2D_tensor_topk)
                 hidden_attention_topk = self.tnt_cross_attention(
                     targets_feature_topk.unsqueeze(0), inputs[i][:inputs_lengths[i]].unsqueeze(0)).squeeze(0)
 
-                # 5. [修改] 只为 top-k 个目标点生成轨迹 (在局部坐标系中)
                 predict_trajs_tensor_local = self.tnt_decoder(
                     torch.cat([hidden_states[i, 0, :].unsqueeze(0).expand(k, -1),
                                targets_feature_topk,
                                hidden_attention_topk], dim=-1)
                 ).view([k, self.future_frame_num, 2])
 
-                # 6. [核心修复] 将预测出的局部坐标轨迹转换回世界坐标系
                 normalizer = mapping[i]['normalizer']
-                # a. 先将Tensor转为Numpy
                 predict_trajs_np_local = predict_trajs_tensor_local.detach().cpu().numpy()
-                # b. 使用normalizer进行逆转换
                 predict_trajs_np_world = np.zeros_like(predict_trajs_np_local)
                 for traj_idx in range(k):
                     predict_trajs_np_world[traj_idx] = normalizer(predict_trajs_np_local[traj_idx], reverse=True)
 
-                # 7. [修改] 将正确转换后的世界坐标轨迹(Numpy)和对应的分数(Tensor)存入列表
                 pred_trajs_list_np.append(predict_trajs_np_world)
                 pred_scores_list_t.append(top_k_scores)
 
-            # 返回一个包含Numpy轨迹数组的列表和Tensor分数张量的列表
             return pred_trajs_list_np, pred_scores_list_t, None
-        # ====================================================================================
-        # END: New logic block for DPO
-        # ====================================================================================
-
 
         labels = advgen.utils.get_from_mapping(mapping, 'labels')
         labels_is_valid = advgen.utils.get_from_mapping(mapping, 'labels_is_valid')

@@ -19,7 +19,7 @@ class Logger():
         self.debug = debug
 
         if debug:
-            print(lu.colorize(f"\nDebug mode is activate !!!\nLog will NOT be saved !!!\n", 'red', bold=True))
+            print(lu.colorize("\nDebug mode is active.\nLogs will not be saved.\n", 'red', bold=True))
         else:
             num_exps = 0
             self.log_dir = f"./{log_dir}/{exp_name.replace('-', '_')}_{env_name.replace('-', '_')}-seed{seed}"
@@ -74,7 +74,7 @@ class SafeLogger():
         self.fieldnames = ["total_steps"] + fieldnames
 
         if debug:
-            print(lu.colorize(f"\nDebug mode is activate !!!\nLog will NOT be saved !!!\n", 'red', bold=True))
+            print(lu.colorize("\nDebug mode is active.\nLogs will not be saved.\n", 'red', bold=True))
         else:
             num_exps = 0
             self.log_dir = f"./{log_dir}/{exp_name.replace('-', '_')}_{env_name.replace('-', '_')}_{model_name}-seed{seed}"
@@ -106,10 +106,9 @@ class SafeLogger():
         print(lu.colorize(f"CustomLogger with fileds: {self.fieldnames}", 'blue', bold=True))
         print(lu.colorize(f"fieldvalues: {fieldvalues}\n", 'blue', bold=True))
         self.previous_log_time = current_log_time
-       
+
         if not self.debug:
             for filedname, filedvalue in zip(self.fieldnames, fieldvalues):
                 epinfo.update({filedname: filedvalue})
             self.logger.writerow(epinfo)
             self.csv_file.flush()
-    

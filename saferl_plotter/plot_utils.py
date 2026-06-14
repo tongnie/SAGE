@@ -197,7 +197,6 @@ def load_csv_results(dir, filename="monitor.csv"):
 	df.reset_index(inplace=True)
 	if filename=="monitor.csv":
 		df['t'] -= min(header['t_start'] for header in headers)
-	#df.headers = headers # HACK to preserve backwards compatibility
 	return df
 
 def load_results(root_dir_or_dirs="./", filename="monitor.csv", filters=['']):

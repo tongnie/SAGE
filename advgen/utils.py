@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import inspect
 import json
 import math
@@ -1262,9 +1262,9 @@ idx_in_batch_2_ans_points = {}
 idx_in_batch_2_ans_point_scores = {}
 
 
-def run_process_todo(queue, queue_res, speed=None, eval_time=None):
+def run_process_worker(queue, queue_res, speed=None, eval_time=None):
     id = np.random.randint(5)
-    print('in run_process_todo', get_time(), id)
+    print('in run_process_worker', get_time(), id)
 
 
 def to_origin_coordinate(points, idx_in_batch, scale=None):

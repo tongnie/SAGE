@@ -261,8 +261,7 @@ class VectorNet(nn.Module):
         return element_states_batch, lane_states_batch
 
     # @profile
-    # MODIFICATION: Add return_tensors_for_dpo argument
-    def forward(self, mapping: List[Dict], device, return_tensors_for_dpo=False):
+    def forward(self, mapping: List[Dict], device, return_tensors_for_hgpo=False):
         import time
         global starttime
         starttime = time.time()
@@ -278,8 +277,7 @@ class VectorNet(nn.Module):
         element_states_batch, lane_states_batch = self.forward_encode_sub_graph(mapping, matrix, polyline_spans, device, batch_size)
 
         if 'train_relation' in args.other_params and 'raster_only' in args.other_params:
-            # MODIFICATION: Pass the new argument
-            return self.decoder(mapping, batch_size, lane_states_batch, None, None, None, device, return_tensors_for_dpo=return_tensors_for_dpo)
+            return self.decoder(mapping, batch_size, lane_states_batch, None, None, None, device, return_tensors_for_hgpo=return_tensors_for_hgpo)
 
         inputs, inputs_lengths = advgen.utils.merge_tensors(element_states_batch, device=device)
         max_poly_num = max(inputs_lengths)
@@ -291,5 +289,4 @@ class VectorNet(nn.Module):
 
         advgen.utils.logging('time3', round(time.time() - starttime, 2), 'secs')
 
-        # MODIFICATION: Pass the new argument
-        return self.decoder(mapping, batch_size, lane_states_batch, inputs, inputs_lengths, hidden_states, device, return_tensors_for_dpo=return_tensors_for_dpo)
+        return self.decoder(mapping, batch_size, lane_states_batch, inputs, inputs_lengths, hidden_states, device, return_tensors_for_hgpo=return_tensors_for_hgpo)
