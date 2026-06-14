@@ -1,6 +1,6 @@
 data_directory: ./raw_scenes_370
-adv_model_path: ./advgen/finetuned/grpo_finetuned_model_adv_best.bin
-real_model_path: ./advgen/finetuned/grpo_finetuned_model_real_best.bin
+adv_model_path: ./advgen/finetuned/hgpo_finetuned_model_adv_best.bin
+real_model_path: ./advgen/finetuned/hgpo_finetuned_model_real_best.bin
 initial_w_adv: 0.5
 final_w_adv: 1.0
 eval_w_adv: 1.0

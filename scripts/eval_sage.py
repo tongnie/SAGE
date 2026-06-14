@@ -429,9 +429,9 @@ def evaluate_metrics(env,adv_generator,adv_traj_from_gen,raw_map_features, traff
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # SAGE specific arguments
-    parser.add_argument('--adv_model_path', type=str, default='./advgen/finetuned/grpo_finetuned_model_adv_best.bin',
+    parser.add_argument('--adv_model_path', type=str, default='./advgen/finetuned/hgpo_finetuned_model_adv_best.bin',
                         help="Path to the 'adversarial' fine-tuned model.")
-    parser.add_argument('--real_model_path', type=str, default='./advgen/finetuned/grpo_finetuned_model_real_best.bin',
+    parser.add_argument('--real_model_path', type=str, default='./advgen/finetuned/hgpo_finetuned_model_real_best.bin',
                         help="Path to the 'realism' fine-tuned model.")
     parser.add_argument('--w_adv', type=float, default=0.5,
                         help="Weight for the adversarial objective in SAGE. w_real = 1 - w_adv.")

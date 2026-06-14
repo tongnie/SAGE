@@ -436,10 +436,10 @@ if __name__ == "__main__":
     parser.add_argument("--load_model", default="")
 
     parser.add_argument('--adversarial_model_path', type=str,
-                        default='./advgen/finetuned/grpo_finetuned_model_adv_best.bin',
+                        default='./advgen/finetuned/hgpo_finetuned_model_adv_best.bin',
                         help="Path to the DPO fine-tuned adversarial model.")
     parser.add_argument('--realism_model_path', type=str,
-                        default='./advgen/finetuned/grpo_finetuned_model_real_best.bin',
+                        default='./advgen/finetuned/hgpo_finetuned_model_real_best.bin',
                         help="Path to the original pre-trained model for realism.")
     parser.add_argument('--initial_w_adv', type=float, default=0.5,
                         help="Initial weight for the adversarial objective in curriculum learning.")

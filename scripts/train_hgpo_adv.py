@@ -489,7 +489,7 @@ def main():
     parser.add_argument('--realism_weight', type=float, default=1.0, help="Weight for the realism penalty")
 
 
-    parser.add_argument('--save_path', type=str, default='./advgen/finetuned/grpo_finetuned_model_adv.bin',
+    parser.add_argument('--save_path', type=str, default='./advgen/finetuned/hgpo_finetuned_model_adv.bin',
                         help="Path to save the fine-tuned model")
     parser.add_argument('--base_model_path', type=str, default='./advgen/pretrained/densetnt.bin',
                         help="Path to the pretrained DenseTNT checkpoint")
@@ -503,7 +503,7 @@ def main():
     parser.add_argument('--scenario_csv_path', type=str, default='autopilot_v2.csv',
                         help="Path to the scenario result CSV")
     parser.add_argument('--log_dir', type=str, default='runs', help="Base directory for TensorBoard logs")
-    parser.add_argument('--run_name', type=str, default='grpo_dpo_finetune',
+    parser.add_argument('--run_name', type=str, default='hgpo_finetune',
                         help="A descriptive name for the current run")
 
     dpo_args = parser.parse_args()

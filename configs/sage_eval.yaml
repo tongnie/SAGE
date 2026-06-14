@@ -1,6 +1,6 @@
 data_directory: ./raw_scenes_500
 split_file: ./configs/splits/sage_womd_500.json
-adv_model_path: ./advgen/finetuned/grpo_finetuned_model_adv_best.bin
-real_model_path: ./advgen/finetuned/grpo_finetuned_model_real_best.bin
+adv_model_path: ./advgen/finetuned/hgpo_finetuned_model_adv_best.bin
+real_model_path: ./advgen/finetuned/hgpo_finetuned_model_real_best.bin
 w_adv: 0.5
 use_render: false

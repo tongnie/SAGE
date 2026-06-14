@@ -43,8 +43,8 @@ Expected local layout:
 raw_scenes_500/
 raw_scenes_370/
 advgen/pretrained/densetnt.bin
-advgen/finetuned/grpo_finetuned_model_adv_best.bin
-advgen/finetuned/grpo_finetuned_model_real_best.bin
+advgen/finetuned/hgpo_finetuned_model_adv_best.bin
+advgen/finetuned/hgpo_finetuned_model_real_best.bin
 ```
 
 Checkpoint filenames, SHA256 values, and Google Drive placeholders are listed in [docs/checkpoints.md](docs/checkpoints.md).
@@ -76,8 +76,8 @@ For a quick smoke test, add `--epochs 1 --max_scenarios 1 --log_dir ./tmp/runs`.
 ```bash
 python scripts/eval_sage.py \
   --data_directory ./raw_scenes_500 \
-  --adv_model_path ./advgen/finetuned/grpo_finetuned_model_adv_best.bin \
-  --real_model_path ./advgen/finetuned/grpo_finetuned_model_real_best.bin \
+  --adv_model_path ./advgen/finetuned/hgpo_finetuned_model_adv_best.bin \
+  --real_model_path ./advgen/finetuned/hgpo_finetuned_model_real_best.bin \
   --w_adv 0.5 \
   --max_scenarios 10
 ```
@@ -89,8 +89,8 @@ The vendored MetaDrive copy is trimmed for headless training and evaluation. Use
 ```bash
 python scripts/train_rl_sage.py \
   --data_directory ./raw_scenes_370 \
-  --adversarial_model_path ./advgen/finetuned/grpo_finetuned_model_adv_best.bin \
-  --realism_model_path ./advgen/finetuned/grpo_finetuned_model_real_best.bin
+  --adversarial_model_path ./advgen/finetuned/hgpo_finetuned_model_adv_best.bin \
+  --realism_model_path ./advgen/finetuned/hgpo_finetuned_model_real_best.bin
 ```
 
 For a smoke test, use `--max_timesteps 100 --eval_freq 50 --start_timesteps 10`.
