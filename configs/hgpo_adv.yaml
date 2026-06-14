@@ -1,5 +1,6 @@
 data_directory: ./raw_scenes_500
 split_file: ./configs/splits/sage_womd_500.json
+scenario_csv_path: ./configs/splits/sage_autopilot_summary.csv
 base_model_path: ./advgen/pretrained/densetnt.bin
 save_path: ./advgen/finetuned/hgpo_finetuned_model_adv.bin
 learning_rate: 1.0e-5

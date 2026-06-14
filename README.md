@@ -8,16 +8,6 @@ SAGE treats adversarial scenario generation as multi-objective preference alignm
 - Project page: https://tongnie.github.io/SAGE/
 - Checkpoints: https://drive.google.com/drive/folders/1PPusEI9g12JrZ1BNczIvHZWQe3RjAhLn?usp=sharing
 
-## What Is Included
-
-- HGPO/DPO fine-tuning scripts for the adversarial and realism experts.
-- Shared reward, feasibility, realism, and distributional metrics.
-- SAGE weight-interpolation generation and evaluation script.
-- Closed-loop downstream RL training script.
-- Scenario split metadata and WOMD/CAT preprocessing utilities.
-
-Raw WOMD/CAT scenarios, training logs, TensorBoard runs, debug checkpoints, and full ablation artifacts are intentionally not included.
-
 ## Installation
 
 ```bash
@@ -51,8 +41,6 @@ advgen/finetuned/hgpo_finetuned_model_adv_best.bin
 advgen/finetuned/hgpo_finetuned_model_real_best.bin
 ```
 
-HGPO fine-tuning also expects a scenario summary CSV, passed with `--scenario_csv_path` and defaulting to `autopilot_v2.csv`. This file is generated from your processed CAT/WOMD scenarios and is not included in the repository.
-
 ## Train HGPO Experts
 
 Adversarial expert:
@@ -85,8 +73,6 @@ python scripts/eval_sage.py \
   --w_adv 0.5 \
   --max_scenarios 10
 ```
-
-The vendored MetaDrive copy is trimmed for headless training and evaluation. Use `--use_render` only after restoring the corresponding MetaDrive rendering assets/plugins.
 
 ## Downstream RL Training
 

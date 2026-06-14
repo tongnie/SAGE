@@ -5,7 +5,6 @@ import sys
 import logging
 from tqdm import trange, tqdm
 from copy import deepcopy
-import pandas as pd
 from datetime import datetime
 from pathlib import Path
 
@@ -71,7 +70,7 @@ def Intersect(l1, l2):
 from advgen.modeling.vectornet import VectorNet
 import advgen.utils as advgen_utils
 from advgen.adv_utils import process_data
-from sage.splits import scenario_ids
+from sage.splits import filter_ids_by_summary, scenario_ids
 
 
 class DPOAdvGenerator(object):
@@ -500,8 +499,8 @@ def main():
     parser.add_argument('--split', type=str, default='train', help="Split name in the split JSON")
     parser.add_argument('--max_scenarios', type=int, default=None,
                         help="Optional cap for smoke tests")
-    parser.add_argument('--scenario_csv_path', type=str, default='autopilot_v2.csv',
-                        help="Path to the scenario result CSV")
+    parser.add_argument('--scenario_csv_path', type=str, default='./configs/splits/sage_autopilot_summary.csv',
+                        help="Path to the scenario summary CSV")
     parser.add_argument('--log_dir', type=str, default='runs', help="Base directory for TensorBoard logs")
     parser.add_argument('--run_name', type=str, default='hgpo_finetune',
                         help="A descriptive name for the current run")
@@ -518,9 +517,10 @@ def main():
 
 
     train_ids = scenario_ids(dpo_args.split_file, split=dpo_args.split, max_scenarios=dpo_args.max_scenarios)
+    train_ids = filter_ids_by_summary(train_ids, dpo_args.scenario_csv_path)
     print(f"Found {len(train_ids)} scenarios to train on after filtering.")
     if not train_ids:
-        print("Error: No scenarios left after filtering. Please check your CSV and threshold.")
+        print("Error: No scenarios left after filtering. Please check the split and scenario summary files.")
         return
 
     adv_gen_parser = argparse.ArgumentParser()

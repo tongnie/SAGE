@@ -34,6 +34,7 @@ image/
 tmp/
 events.out.tfevents*
 *.csv
+!configs/splits/*.csv
 *.png
 *.gif
 *.mp4
